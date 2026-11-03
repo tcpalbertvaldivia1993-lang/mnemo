@@ -1,0 +1,20 @@
+# Servicios de Mnemo. Fase 1: solo Postgres.
+# En fases siguientes se añadirán redis, clickhouse y mongo.
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: mnemo
+      POSTGRES_PASSWORD: mnemo
+      POSTGRES_DB: mnemo
+    ports:
+      - "127.0.0.1:5433:5432"   # solo accesible desde este PC (5432 lo usa el Postgres de Windows)
+    volumes:
+      - datos_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mnemo"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  datos_postgres:

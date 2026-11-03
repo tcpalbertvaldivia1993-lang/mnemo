@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+strawberry-graphql[fastapi]
+sqlalchemy>=2
+psycopg[binary]
+pydantic-settings
+langchain-core
+langchain-anthropic
+langchain-ollama
+sentence-transformers
+pytest
+httpx
