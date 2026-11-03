@@ -1,5 +1,7 @@
 # Mnemo
 
+[![Tests](https://github.com/tcpalbertvaldivia1993-lang/mnemo/actions/workflows/tests.yml/badge.svg)](https://github.com/tcpalbertvaldivia1993-lang/mnemo/actions/workflows/tests.yml)
+
 Tutor de idiomas **multiagente, seguro y con modelo cognitivo**. Es un proyecto de portfolio para practicar agentes LLM, machine learning, varias bases de datos y seguridad de identidades.
 
 ## Estado: Fase 1 (MVP)
@@ -60,7 +62,7 @@ En `.env`, cambia `PROVEEDOR_LLM`:
 .venv/bin/python -m pytest
 ```
 
-Los tests usan SQLite en memoria y un Tutor simulado, así que no necesitan Docker ni gastan API. `test_similitud.py` descarga el modelo de embeddings la primera vez (unos 500 MB).
+Se ejecutan solos en GitHub Actions con cada push (`.github/workflows/tests.yml`). Los tests usan SQLite en memoria y un Tutor simulado, así que no necesitan Docker ni gastan API. `test_similitud.py` descarga el modelo de embeddings la primera vez (unos 500 MB).
 
 ## Estructura
 
