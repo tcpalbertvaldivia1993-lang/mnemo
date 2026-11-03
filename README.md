@@ -11,6 +11,10 @@ El estudiante traduce una frase del español al inglés:
 3. Cada intento se guarda en **Postgres**.
 4. Todo se expone con una API **GraphQL** (FastAPI + Strawberry).
 
+![Explorador GraphQL: el estudiante escribe "I have hungry" y el Tutor explica el error](docs/explorador-graphql.png)
+
+*Respuesta real del Tutor con `qwen2.5:3b` en Ollama: el evaluador detecta que el significado es correcto (`casi`, 0.979) y el Tutor explica que falla el verbo.*
+
 ## Puesta en marcha
 
 Requisitos (todo gratis): Docker Desktop con integración WSL, [uv](https://docs.astral.sh/uv/) y [Ollama](https://ollama.com).
