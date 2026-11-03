@@ -9,6 +9,8 @@ from strawberry.fastapi import BaseContext
 from strawberry.types import Info
 
 from mnemo.agentes.tutor import Tutor
+from mnemo.analitica.eventos import RegistradorEventos
+from mnemo.cognitivo.planificador import planificar_repaso
 from mnemo.db import modelos
 from mnemo.evaluador.similitud import Evaluacion
 
@@ -22,6 +24,7 @@ class Contexto(BaseContext):
     fabrica_sesiones: sessionmaker[Session]
     evaluar: Callable[[str, list[str]], Evaluacion]
     tutor: Tutor
+    registrador: RegistradorEventos | None = None
 
 
 # --- Tipos GraphQL ---
@@ -38,6 +41,15 @@ class ResultadoRespuesta:
     veredicto: str
     explicacion: str | None
     solucion: str
+
+
+@strawberry.type
+class ItemRepaso:
+    ejercicio: Ejercicio
+    probabilidad_recuerdo: float = strawberry.field(
+        description="Probabilidad de que el estudiante lo recuerde ahora, según ACT-R")
+    practicas: int
+    nuevo: bool
 
 
 @strawberry.type
@@ -73,6 +85,17 @@ class Consulta:
             ).one()
             return Progreso(estudiante_id=estudiante_id, intentos=intentos,
                             correctas=correctas, puntuacion_media=round(float(media), 3))
+
+
+    @strawberry.field(description="Qué ejercicios repasar ahora: primero los que se están olvidando")
+    def repaso(self, info: Info[Contexto, None], estudiante_id: int, limite: int = 10) -> list[ItemRepaso]:
+        with info.context.fabrica_sesiones() as sesion:
+            return [
+                ItemRepaso(ejercicio=Ejercicio(id=i.ejercicio_id, enunciado=i.enunciado),
+                           probabilidad_recuerdo=i.probabilidad_recuerdo,
+                           practicas=i.practicas, nuevo=i.nuevo)
+                for i in planificar_repaso(sesion, estudiante_id, limite=limite)
+            ]
 
 
 # --- Mutaciones ---
@@ -113,6 +136,12 @@ class Mutacion:
                 explicacion=explicacion,
             ))
             sesion.commit()
+
+        # 4. Evento seudonimizado para la analítica (ClickHouse)
+        if ctx.registrador is not None:
+            ctx.registrador.registrar_respuesta(
+                estudiante_id=estudiante_id, ejercicio_id=ejercicio_id,
+                veredicto=evaluacion.veredicto, puntuacion=evaluacion.puntuacion)
 
         return ResultadoRespuesta(puntuacion=evaluacion.puntuacion, veredicto=evaluacion.veredicto,
                                   explicacion=explicacion, solucion=evaluacion.solucion_cercana)

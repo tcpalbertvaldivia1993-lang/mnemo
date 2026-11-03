@@ -8,5 +8,8 @@ langchain-core
 langchain-anthropic
 langchain-ollama
 sentence-transformers
+scikit-learn
+pyactr
+clickhouse-connect
 pytest
 httpx
